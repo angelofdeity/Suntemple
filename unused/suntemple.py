@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# ICA 2
 import random
 
 # global variables
@@ -7,12 +8,13 @@ player_id = 1  # keep track of current player
 temple_board = []  # board filled with gems and marker
 rows, columns = 5, 8  # size of the board
 # current and next position of the player
-current_position = 0
+current_position, next_position = 0, 0
 # possible moves at the start of the game
 movesleft = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]
 current_move = -1  # track the current move
 player_scores = [0, 0]  # store scores for each player
 gem_collection = [[], []]  # store collection of gems for each player
+Redundant = None
 
 # game instructions
 RULES = """\
@@ -101,17 +103,17 @@ def getplayers():
 # randomly fill up board with gems and place marker ``*`` at beginning
 def board_items():
     """
-    This function sets up the game board by filling it with a set number of gems
+    This function sets up the game board by filling it with a set number of gems 
     (7 rubies, 7 emeralds, 7 diamonds, 7 sapphires, and 11 glass beads) in a random order.
     It also inserts a marker "*" at the beginning of the board to indicate the starting position of the players.
     """
     gems = ["R"]*7 + ["E"]*7 + ["D"]*7 + ["S"]*7 + ["G"]*11
     random.shuffle(gems)
-    gems.insert(0, "$")
+    gems.insert(0, "*")
     return gems
 
 
-def print_board():
+def print_board(temple_board, rows, columns):
     """
     This function prints the game board using the characters '|', '-' and '+'
     """
@@ -143,15 +145,28 @@ def activemove(players):
     """
     flag = False
     while not flag:
-        print("The available moves left are :", movesleft)
-        my_move = input(
-            "\n" + players[player_id] +
-            " please choose a move from the available moves: ")
-        try:
-            current_move = int(my_move)
-            flag = check_valid_playermove(current_move)
-        except:
-            print("Invalid choice - Please choose a move from: ", movesleft)
+        # check if it is player 1's turn
+        if player_id == 1:
+            print("The available moves left are :", movesleft)
+            my_move = input(
+                "\n" + players[1] +
+                " please choose a number from the available moves left displayed: ")
+            try:
+                current_move = int(my_move)
+                flag = check_valid_playermove(current_move)
+            except:
+                print("Invalid choice - Please choose a move from: ", movesleft)
+        else:
+            print("These are the moves left :", movesleft)
+            my_move = input(
+                "\n" + players[0] +
+                " please choose a number from the available moves left displayed: ")
+            try:
+                current_move = int(my_move)
+                flag = check_valid_playermove(current_move)
+            except:
+                print("Invalid choice - Please choose a move from: ", movesleft)
+
     return current_move
 
 
@@ -172,26 +187,20 @@ def update_variables(activeplayermove):
     """
     The function updates the player position and gems collected based on the move made.
     """
-    global current_position
-
-    curr_pos = current_position
-    next_pos = curr_pos + activeplayermove
-    temple_board[curr_pos] = " "
-    curr_pos += 1
-    # print("update_vars(): ", activeplayermove, current_position, next_position)
-
-    while curr_pos < next_pos:
-        if curr_pos <= 39:
-            gem = temple_board[curr_pos]
-            gem_collection[player_id].append(gem)
-            temple_board[curr_pos] = " "
-        curr_pos += 1
-
-    if curr_pos < 40:
-        gem = temple_board[curr_pos]
-        gem_collection[player_id].append(gem)
-        temple_board[curr_pos] = "$"
-    current_position = curr_pos
+    global current_position, next_position
+    next_position = min(current_position + activeplayermove,
+                        len(temple_board) - 1)  # ensures next position doesn't exceed the size of the board
+    temple_board[current_position] = " "  # set the current position to empty
+    current_position += 1
+    # loop through the path the player took to their next position
+    while current_position <= next_position:
+        # append the gem collected by the player
+        gem_collection[player_id].append(temple_board[current_position])
+        temple_board[current_position] = " "  # set the path to empty
+        current_position += 1
+    temple_board[next_position] = "*"  # mark the next position on the board
+    # print(gem_collection)
+    return " "
 
 
 # condition for ending the game
@@ -203,8 +212,7 @@ def is_game_on(current_position):
     If the current position is greater than or equal to the maximum position of the board (39), the game is over.
     Otherwise, the game is still on.
     """
-    if current_position > 39:
-        print("game is over!!!")
+    if current_position >= 39:
         return False
     return True
 
@@ -216,12 +224,6 @@ def determine_winner(players, gem_collection, player_scores):
     """
     print("\nGame Over")
     print("*" * 30 + "\n")
-
-    _player_id = 0 if player_id == 2 else 1
-    gem_collection[_player_id].append(random.choice("REDSG"))
-
-    display_gems(players)
-
     for i in range(2):
         rubies = gem_collection[i].count("R")
         emeralds = gem_collection[i].count("E")
@@ -245,23 +247,10 @@ def determine_winner(players, gem_collection, player_scores):
         print(players[1], "is the winner")
 
 
-def display_gems(players):
-    """
-    display players' gems
-    """
-    print("\nPlayer Gems are: ")
-    print(f" {players[0]}: {gem_collection[0]}")
-    margin = len(players[0])
-    divider = len(gem_collection[0]) * 5
-    print(
-        f"{'-' * (margin // 2)}{'-' * (divider // 2)}>><<{'-' * (divider // 2)}{'-' * (margin // 2)}")
-    print(f" {players[1]}: {gem_collection[1]}")
-
-
 # main program
 def start():
     global rows, columns, numberofplayers, player_id, temple_board
-    global current_position
+    global current_position, next_position
     global player_scores, gem_collection
 
     # display the application name
@@ -278,7 +267,7 @@ def start():
     players = getplayers()  # get the number of players
     print("\n")
     temple_board = board_items()  # generate the board
-    print_board()
+    print_board(temple_board, rows, columns)
 
     game_is_running = True
     while game_is_running:
@@ -291,13 +280,23 @@ def start():
         activeplayermove = activemove(players)
         print("\nYou chose to move", activeplayermove, "Spaces")
 
-        if activeplayermove != 0:
-            update_variables(activeplayermove)
-        game_is_running = is_game_on(current_position)
+        next_position = current_position + activeplayermove
 
-        print_board()
-        if game_is_running:
-            display_gems(players)
+        variables = update_variables(activeplayermove)
+        print(variables)
+
+        print_board(temple_board, rows, columns)
+        print("\nPlayer Gems are: ")
+        print(f" {players[0]}: {gem_collection[0]}")
+        margin = len(players[0])
+        divider = len(gem_collection[0]) * 5
+        print(
+            f"{'-' * (margin // 2)}{'-' * (divider // 2)}>><<{'-' * (divider // 2)}{'-' * (margin // 2)}")
+        print(f" {players[1]}: {gem_collection[1]}")
+
+        current_position = next_position
+
+        game_is_running = is_game_on(current_position)
 
     determine_winner(players, gem_collection, player_scores)
 
