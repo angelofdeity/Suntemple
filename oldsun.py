@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # ICA 2
 import random
 
@@ -59,17 +58,13 @@ def getplayers(num):
 
 
 # randomly fill up board with gems and place marker at beginning
-def board_items(board):
-
-    Rubies = "R" * 7
-    Emeralds = "D" * 7
-    Sapphires = "S" * 7
-    Glass_Beads = "G" * 11
-    gems = Rubies + Emeralds + Sapphires + Glass_Beads
+def board_items(track):
+    gems = "RRRRRRREEEEEEEDDDDDDDSSSSSSSGGGGGGGGGGG"
+    print("gems:", len(gems))
     for i in range(len(gems)):
-        board.append(gems[i])
+        track.append(gems[i])
     random.shuffle(track)
-    board.insert(0, "*")
+    track.insert(0, "*")
     return track
 
 
@@ -130,19 +125,19 @@ def playermovevalid(curr_move):
 
 
 # update player position and gems collected
-def update_vars(current_position, gem_collection):
+def update_vars(curr_post, gem_collection):
 
-    next_position = min(current_position + activeplayermove, len(track) - 1)
-    track[current_position] = " "
-    current_position += 1
-    # print("update_vars(): ", activeplayermove, current_position, next_position)
-    while current_position <= next_position:
+    next_post = min(curr_post + activeplayermove, len(track) - 1)
+    track[curr_post] = " "
+    curr_post += 1
+    # print("update_vars(): ", activeplayermove, curr_post, next_post)
+    while curr_post <= next_post:
 
-        gem_collection[playerno].append(track[current_position])
+        gem_collection[playerno].append(track[curr_post])
 
-        track[current_position] = " "
-        current_position += 1
-    track[next_position] = "*"
+        track[curr_post] = " "
+        curr_post += 1
+    track[next_post] = "*"
     # print(gem_collection)
 
     return " "
@@ -152,7 +147,8 @@ def update_vars(current_position, gem_collection):
 def gameover(curr_post):
     if curr_post >= 39:
         return False
-    return True
+    else:
+        return True
 
 
 # determine winner
