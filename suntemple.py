@@ -113,7 +113,7 @@ def board_items():
     return gems
 
 
-def print_board():
+def print_board(temple_board, rows, columns):
     """
     This function prints the game board using the characters '|', '-' and '+'
     """
@@ -267,7 +267,7 @@ def start():
     players = getplayers()  # get the number of players
     print("\n")
     temple_board = board_items()  # generate the board
-    print_board()
+    print_board(temple_board, rows, columns)
 
     game_is_running = True
     while game_is_running:
@@ -285,7 +285,7 @@ def start():
         variables = update_variables(activeplayermove)
         print(variables)
 
-        print_board()
+        print_board(temple_board, rows, columns)
         print("\nPlayer Gems are: ")
         print(f" {players[0]}: {gem_collection[0]}")
         margin = len(players[0])
