@@ -142,6 +142,12 @@ def activemove(players):
     """
     The function prompts the current player to make a move, and validates the input.
     It will keep prompting the player until a valid move is made.
+
+    Parameters:
+    players (List[str]): list of player names, with the current player in the first index
+
+    Returns:
+    int: current move made by the player
     """
     flag = False
     while not flag:
@@ -173,6 +179,12 @@ def activemove(players):
 def check_valid_playermove(current_move):
     """
     The function checks if the move made by the player is valid by checking if it is in the list of available moves
+
+    Parameters:
+    current_move (int): the move made by the player
+
+    Returns:
+    bool: True if the move is valid, False if the move is invalid.
     """
     if current_move in movesleft:
         movesleft.remove(current_move)
@@ -186,6 +198,12 @@ def check_valid_playermove(current_move):
 def update_variables(activeplayermove):
     """
     The function updates the player position and gems collected based on the move made.
+
+    Parameters:
+    activeplayermove (int): the move made by the player
+
+    Returns:
+    str: " " indicating the function is updating variables and not returning any value.
     """
     global current_position, next_position
     next_position = min(current_position + activeplayermove,
@@ -211,6 +229,10 @@ def is_game_on(current_position):
     The function checks if the game is over by checking if the current position of the player has reached the end of the board.
     If the current position is greater than or equal to the maximum position of the board (39), the game is over.
     Otherwise, the game is still on.
+    Parameters:
+    current_position (int): the current position of the player on the board.
+    Returns:
+    bool: True if the game is on, False if the game is over.
     """
     if current_position >= 39:
         return False
@@ -221,6 +243,13 @@ def is_game_on(current_position):
 def determine_winner(players, gem_collection, player_scores):
     """
     Calculate the scores of each player based on the gems they collected.
+    Args:
+        players: A list of names of the players
+        gem_collection: A list of strings representing the collection of gems for each player.
+            Each string is a collection of gems represented by the first letter of their name 
+        player_scores: A list of integers representing the initial score of each player
+
+    Returns: None, but prints the final scores and the winner of the game
     """
     print("\nGame Over")
     print("*" * 30 + "\n")
